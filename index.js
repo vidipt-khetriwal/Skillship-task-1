@@ -1,3 +1,4 @@
+const fs = require('fs')
 const express = require('express')
 const app=express();
 const PORT = 8080;
@@ -11,37 +12,30 @@ app.get('/',(req,res) => {
 });
 
 app.get('/fruits',(req,res) => {
-    res.status(200).send( {
-        "kiwi": "🥝",
-        "stawberry": "🍓",
-        "pinapple": "🍍",
-        "pear": "🍐",
-        "banana": "🍌",
-        "grapes": "🍇"
-    })
+    const data = loadData()
+    res.status(200).send(data)
 });
 
 app.post('/add-fruit',(req,res) => {
-    const {id} = req.params;
-    const {pinapple} = req.body;
-    
-    if (!pinapple) {
-        res.status(418).send({message: "We need a fruit!"})
-    }
-    res.send({
-        "kiwi": "🥝",
-        "stawberry": "🍓",
-        "pineapple": "🍍",
-        "pear": "🍐",
-        "banana": "🍌",
-        "grapes": "🍇",
-        pinapple : `${pinapple}`
-    });
-    // res.send({
-    //     fruit:id
-    // })
-
+    const body = req.body
+    const data = loadData()
+    data.push(body)
+    savaData(data)
+    const f_data = loadData()
+    console.log(f_data)
+    res.send(f_data)
 });
+
+const loadData = function(){
+    const dataBuffer = fs.readFileSync('database.json')
+    const dataJSON = dataBuffer.toString()
+    return(JSON.parse(dataJSON))
+}
+
+const savaData = function(notes){
+    const dataJSON = JSON.stringify(notes)
+    fs.writeFileSync('database.json',dataJSON)
+}
 
 app.listen(
     PORT, 
